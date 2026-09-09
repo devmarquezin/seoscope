@@ -20,9 +20,11 @@ O backend inicial está funcionando e já consegue:
 - limitar a resposta a 2 MB;
 - aceitar somente documentos HTML ou XHTML;
 - retornar metadados básicos da página carregada;
+- analisar a presença, o conteúdo e o comprimento do Title;
+- retornar o resultado do Title no contrato comum `SEOCheckResult`;
 - responder com erros HTTP legíveis para entradas inválidas e falhas externas.
 
-Ainda não há analyzers, cálculo de score ou frontend.
+Somente o analyzer de Title está implementado. Ainda não há cálculo do score geral ou frontend.
 
 ## Stack
 
@@ -34,10 +36,10 @@ Ainda não há analyzers, cálculo de score ou frontend.
 - Zod
 - Fetch nativo
 - ipaddr.js
+- Cheerio
 
 ### Planejado para o MVP
 
-- Cheerio para leitura e consulta do HTML
 - React
 - TypeScript
 - Vite
@@ -51,10 +53,14 @@ SeoScope/
 │   ├── src/
 │   │   ├── controllers/
 │   │   │   └── analysisController.ts
+│   │   ├── analyzers/
+│   │   │   ├── titleAnalyzer.ts
+│   │   │   └── titleAnalyzer.test.ts
 │   │   ├── routes/
 │   │   │   └── analysisRoutes.ts
 │   │   ├── services/
-│   │   │   └── pageFetcher.ts
+│   │   │   ├── pageFetcher.ts
+│   │   │   └── seoAnalyzer.ts
 │   │   ├── types/
 │   │   │   └── analysis.ts
 │   │   ├── app.ts
@@ -68,13 +74,16 @@ SeoScope/
 ### Responsabilidade dos arquivos
 
 - `analysisController.ts`: valida a entrada, chama o serviço de carregamento e transforma falhas em respostas HTTP.
+- `titleAnalyzer.ts`: verifica se o Title existe, se está preenchido e se seu comprimento atende à heurística interna.
+- `titleAnalyzer.test.ts`: testa os cenários de Title ausente, vazio, curto, longo, adequado e com espaços irregulares.
 - `analysisRoutes.ts`: registra a rota `POST /api/analyze`.
 - `pageFetcher.ts`: carrega uma página e concentra limites de rede e a proteção básica contra SSRF.
+- `seoAnalyzer.ts`: carrega o HTML no Cheerio uma vez e coordena os analyzers implementados.
 - `analysis.ts`: define os contratos TypeScript das futuras verificações e da análise completa.
 - `app.ts`: configura o Express, o parser JSON, as rotas e a resposta 404.
 - `server.ts`: inicia o servidor HTTP.
 
-Pastas como `analyzers/` e `utils/` serão criadas quando tiverem implementações reais, evitando estrutura vazia ou código fictício.
+Os próximos arquivos de analyzer e a pasta `utils/` serão criados quando tiverem implementações reais, evitando estrutura vazia ou código fictício.
 
 ## Como executar
 
@@ -102,6 +111,7 @@ O servidor ficará disponível em `http://localhost:3000` por padrão. Outra por
 
 ```bash
 npm run typecheck
+npm test
 npm run build
 npm start
 ```
@@ -129,7 +139,22 @@ Resposta atual aproximada:
   "statusCode": 200,
   "contentType": "text/html",
   "sizeInBytes": 559,
-  "message": "Página carregada. Os analyzers serão adicionados na próxima etapa."
+  "results": [
+    {
+      "id": "title",
+      "name": "Title",
+      "status": "warning",
+      "score": 10,
+      "maxScore": 20,
+      "message": "O título tem 14 caracteres e pode ser pouco descritivo.",
+      "recommendation": "Considere usar entre 30 e 60 caracteres.",
+      "details": {
+        "title": "Example Domain",
+        "length": 14
+      }
+    }
+  ],
+  "message": "Análise parcial concluída: 1 de 8 verificações implementadas."
 }
 ```
 
@@ -219,7 +244,7 @@ Essas medidas reduzem o risco do MVP, mas não substituem controles adicionais d
 - [x] Validar a URL com Zod
 - [x] Implementar o carregamento controlado de uma única página
 - [x] Adicionar proteção básica contra SSRF
-- [ ] Instalar o Cheerio e implementar o analyzer de Title
+- [x] Instalar o Cheerio e implementar o analyzer de Title
 - [ ] Implementar Meta description
 - [ ] Implementar H1
 - [ ] Implementar hierarquia de headings

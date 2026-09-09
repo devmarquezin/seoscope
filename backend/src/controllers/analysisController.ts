@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
 import { fetchPage, PageFetchError } from "../services/pageFetcher.js";
+import { analyzeSeo } from "../services/seoAnalyzer.js";
 
 const analyzeRequestSchema = z.object({
   url: z
@@ -43,6 +44,7 @@ export async function analyzePage(
 
   try {
     const page = await fetchPage(parsedBody.data.url);
+    const results = analyzeSeo(page.html);
 
     response.status(200).json({
       url: page.requestedUrl,
@@ -50,7 +52,8 @@ export async function analyzePage(
       statusCode: page.statusCode,
       contentType: page.contentType,
       sizeInBytes: page.sizeInBytes,
-      message: "Página carregada. Os analyzers serão adicionados na próxima etapa.",
+      results,
+      message: "Análise parcial concluída: 1 de 8 verificações implementadas.",
     });
   } catch (error) {
     if (error instanceof PageFetchError) {
