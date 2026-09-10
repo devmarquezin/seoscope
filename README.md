@@ -24,10 +24,11 @@ O backend inicial está funcionando e já consegue:
 - analisar a presença, o conteúdo e o comprimento da Meta Description;
 - analisar a presença, a quantidade e o conteúdo dos headings H1;
 - analisar a contagem e os saltos de hierarquia entre H1 e H6;
+- contar imagens com e sem atributo `alt`, incluindo `alt` vazio separadamente;
 - retornar os resultados no contrato comum `SEOCheckResult`;
 - responder com erros HTTP legíveis para entradas inválidas e falhas externas.
 
-Os analyzers de Title, Meta Description, H1 e hierarquia de headings estão implementados. Ainda não há cálculo do score geral ou frontend.
+Os analyzers de Title, Meta Description, H1, hierarquia de headings e imagens estão implementados. Ainda não há cálculo do score geral ou frontend.
 
 ## Stack
 
@@ -63,6 +64,8 @@ SeoScope/
 │   │   │   ├── h1Analyzer.test.ts
 │   │   │   ├── headingAnalyzer.ts
 │   │   │   ├── headingAnalyzer.test.ts
+│   │   │   ├── imageAnalyzer.ts
+│   │   │   ├── imageAnalyzer.test.ts
 │   │   │   ├── titleAnalyzer.ts
 │   │   │   └── titleAnalyzer.test.ts
 │   │   ├── routes/
@@ -89,6 +92,8 @@ SeoScope/
 - `h1Analyzer.test.ts`: testa H1 ausente, vazio, único, múltiplo e normalização de espaços.
 - `headingAnalyzer.ts`: conta H1–H6 e detecta saltos ascendentes entre headings consecutivos.
 - `headingAnalyzer.test.ts`: testa ausência, sequências válidas, saltos de nível, contagens e separação da regra de H1.
+- `imageAnalyzer.ts`: conta imagens com, sem e com valor vazio no atributo `alt`, aplicando score proporcional.
+- `imageAnalyzer.test.ts`: testa páginas sem imagens, atributos presentes, vazios, ausentes e detalhes das imagens afetadas.
 - `titleAnalyzer.ts`: verifica se o Title existe, se está preenchido e se seu comprimento atende à heurística interna.
 - `titleAnalyzer.test.ts`: testa os cenários de Title ausente, vazio, curto, longo, adequado e com espaços irregulares.
 - `analysisRoutes.ts`: registra a rota `POST /api/analyze`.
@@ -221,9 +226,24 @@ Resposta atual aproximada:
         ],
         "skippedLevels": []
       }
+    },
+    {
+      "id": "image-alt",
+      "name": "Image Alt Text",
+      "status": "success",
+      "score": 15,
+      "maxScore": 15,
+      "message": "A página não possui imagens para verificar.",
+      "details": {
+        "total": 0,
+        "withAlt": 0,
+        "emptyAlt": 0,
+        "withoutAlt": 0,
+        "missingAltImages": []
+      }
     }
   ],
-  "message": "Análise parcial concluída: 4 de 8 verificações implementadas."
+  "message": "Análise parcial concluída: 5 de 8 verificações implementadas."
 }
 ```
 
@@ -317,7 +337,7 @@ Essas medidas reduzem o risco do MVP, mas não substituem controles adicionais d
 - [x] Implementar Meta description
 - [x] Implementar H1
 - [x] Implementar hierarquia de headings
-- [ ] Implementar análise de imagens sem `alt`
+- [x] Implementar análise de imagens sem `alt`
 - [ ] Implementar Canonical
 - [ ] Implementar Open Graph
 - [ ] Implementar HTTPS
