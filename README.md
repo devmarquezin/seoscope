@@ -20,9 +20,18 @@ O backend inicial está funcionando e já consegue:
 - limitar a resposta a 2 MB;
 - aceitar somente documentos HTML ou XHTML;
 - retornar metadados básicos da página carregada;
+- analisar a presença, o conteúdo e o comprimento do Title;
+- analisar a presença, o conteúdo e o comprimento da Meta Description;
+- analisar a presença, a quantidade e o conteúdo dos headings H1;
+- analisar a contagem e os saltos de hierarquia entre H1 e H6;
+- contar imagens com e sem atributo `alt`, incluindo `alt` vazio separadamente;
+- verificar ausência, preenchimento e duplicidade de tags canonical;
+- verificar `og:title`, `og:description`, `og:image` e `og:url`;
+- verificar se a URL final da página utiliza HTTPS;
+- retornar os resultados no contrato comum `SEOCheckResult`;
 - responder com erros HTTP legíveis para entradas inválidas e falhas externas.
 
-Ainda não há analyzers, cálculo de score ou frontend.
+Todos os oito analyzers do MVP estão implementados, assim como o score geral, a classificação e o resumo de resultados. Ainda não há frontend.
 
 ## Stack
 
@@ -34,10 +43,10 @@ Ainda não há analyzers, cálculo de score ou frontend.
 - Zod
 - Fetch nativo
 - ipaddr.js
+- Cheerio
 
 ### Planejado para o MVP
 
-- Cheerio para leitura e consulta do HTML
 - React
 - TypeScript
 - Vite
@@ -51,12 +60,33 @@ SeoScope/
 │   ├── src/
 │   │   ├── controllers/
 │   │   │   └── analysisController.ts
+│   │   ├── analyzers/
+│   │   │   ├── canonicalAnalyzer.ts
+│   │   │   ├── canonicalAnalyzer.test.ts
+│   │   │   ├── descriptionAnalyzer.ts
+│   │   │   ├── descriptionAnalyzer.test.ts
+│   │   │   ├── h1Analyzer.ts
+│   │   │   ├── h1Analyzer.test.ts
+│   │   │   ├── headingAnalyzer.ts
+│   │   │   ├── headingAnalyzer.test.ts
+│   │   │   ├── httpsAnalyzer.ts
+│   │   │   ├── httpsAnalyzer.test.ts
+│   │   │   ├── imageAnalyzer.ts
+│   │   │   ├── imageAnalyzer.test.ts
+│   │   │   ├── openGraphAnalyzer.ts
+│   │   │   ├── openGraphAnalyzer.test.ts
+│   │   │   ├── titleAnalyzer.ts
+│   │   │   └── titleAnalyzer.test.ts
 │   │   ├── routes/
 │   │   │   └── analysisRoutes.ts
 │   │   ├── services/
-│   │   │   └── pageFetcher.ts
+│   │   │   ├── pageFetcher.ts
+│   │   │   └── seoAnalyzer.ts
 │   │   ├── types/
 │   │   │   └── analysis.ts
+│   │   ├── utils/
+│   │   │   ├── scoreCalculator.ts
+│   │   │   └── scoreCalculator.test.ts
 │   │   ├── app.ts
 │   │   └── server.ts
 │   ├── package.json
@@ -68,13 +98,32 @@ SeoScope/
 ### Responsabilidade dos arquivos
 
 - `analysisController.ts`: valida a entrada, chama o serviço de carregamento e transforma falhas em respostas HTTP.
+- `canonicalAnalyzer.ts`: verifica ausência, preenchimento e duplicidade de tags canonical.
+- `canonicalAnalyzer.test.ts`: testa canonical ausente, sem `href`, vazia, única, múltipla e variações do atributo `rel`.
+- `descriptionAnalyzer.ts`: verifica se a Meta Description existe, se está preenchida e se seu comprimento atende à heurística interna.
+- `descriptionAnalyzer.test.ts`: testa ausência, conteúdo vazio, limites de comprimento, capitalização e espaços irregulares.
+- `h1Analyzer.ts`: verifica ausência, conteúdo e quantidade de headings H1.
+- `h1Analyzer.test.ts`: testa H1 ausente, vazio, único, múltiplo e normalização de espaços.
+- `headingAnalyzer.ts`: conta H1–H6 e detecta saltos ascendentes entre headings consecutivos.
+- `headingAnalyzer.test.ts`: testa ausência, sequências válidas, saltos de nível, contagens e separação da regra de H1.
+- `httpsAnalyzer.ts`: verifica se a URL final que entregou o HTML utiliza HTTPS.
+- `httpsAnalyzer.test.ts`: testa HTTPS, HTTP, URLs completas e entrada inválida.
+- `imageAnalyzer.ts`: conta imagens com, sem e com valor vazio no atributo `alt`, aplicando score proporcional.
+- `imageAnalyzer.test.ts`: testa páginas sem imagens, atributos presentes, vazios, ausentes e detalhes das imagens afetadas.
+- `openGraphAnalyzer.ts`: verifica o preenchimento das quatro propriedades Open Graph exigidas pelo MVP.
+- `openGraphAnalyzer.test.ts`: testa propriedades ausentes, vazias, parciais, capitalizadas e duplicadas.
+- `titleAnalyzer.ts`: verifica se o Title existe, se está preenchido e se seu comprimento atende à heurística interna.
+- `titleAnalyzer.test.ts`: testa os cenários de Title ausente, vazio, curto, longo, adequado e com espaços irregulares.
 - `analysisRoutes.ts`: registra a rota `POST /api/analyze`.
 - `pageFetcher.ts`: carrega uma página e concentra limites de rede e a proteção básica contra SSRF.
-- `analysis.ts`: define os contratos TypeScript das futuras verificações e da análise completa.
+- `seoAnalyzer.ts`: carrega o HTML no Cheerio uma vez e coordena os analyzers implementados.
+- `analysis.ts`: define os contratos TypeScript das verificações e da análise completa.
+- `scoreCalculator.ts`: soma os pontos, classifica a nota e conta sucessos, avisos e erros.
+- `scoreCalculator.test.ts`: testa soma, arredondamento, limites, classificações e resumo.
 - `app.ts`: configura o Express, o parser JSON, as rotas e a resposta 404.
 - `server.ts`: inicia o servidor HTTP.
 
-Pastas como `analyzers/` e `utils/` serão criadas quando tiverem implementações reais, evitando estrutura vazia ou código fictício.
+Novos arquivos só serão criados quando tiverem uma responsabilidade real, evitando estrutura vazia ou código fictício.
 
 ## Como executar
 
@@ -102,6 +151,7 @@ O servidor ficará disponível em `http://localhost:3000` por padrão. Outra por
 
 ```bash
 npm run typecheck
+npm test
 npm run build
 npm start
 ```
@@ -126,10 +176,157 @@ Resposta atual aproximada:
 {
   "url": "https://example.com/",
   "finalUrl": "https://example.com/",
+  "score": 55,
+  "status": "needs-improvement",
+  "summary": {
+    "passed": 4,
+    "warnings": 1,
+    "errors": 3
+  },
   "statusCode": 200,
   "contentType": "text/html",
   "sizeInBytes": 559,
-  "message": "Página carregada. Os analyzers serão adicionados na próxima etapa."
+  "results": [
+    {
+      "id": "title",
+      "name": "Title",
+      "status": "warning",
+      "score": 10,
+      "maxScore": 20,
+      "message": "O título tem 14 caracteres e pode ser pouco descritivo.",
+      "recommendation": "Considere usar entre 30 e 60 caracteres.",
+      "details": {
+        "title": "Example Domain",
+        "length": 14
+      }
+    },
+    {
+      "id": "meta-description",
+      "name": "Meta Description",
+      "status": "error",
+      "score": 0,
+      "maxScore": 15,
+      "message": "A página não possui uma meta description.",
+      "recommendation": "Adicione uma meta description que resuma o conteúdo da página.",
+      "details": {
+        "description": null,
+        "length": 0
+      }
+    },
+    {
+      "id": "h1",
+      "name": "H1",
+      "status": "success",
+      "score": 15,
+      "maxScore": 15,
+      "message": "A página possui um único H1 preenchido.",
+      "details": {
+        "count": 1,
+        "headings": [
+          "Example Domain"
+        ]
+      }
+    },
+    {
+      "id": "heading-hierarchy",
+      "name": "Heading Hierarchy",
+      "status": "success",
+      "score": 10,
+      "maxScore": 10,
+      "message": "A página possui 1 heading sem saltos de nível.",
+      "details": {
+        "total": 1,
+        "counts": {
+          "h1": 1,
+          "h2": 0,
+          "h3": 0,
+          "h4": 0,
+          "h5": 0,
+          "h6": 0
+        },
+        "outline": [
+          {
+            "level": 1,
+            "tag": "h1",
+            "text": "Example Domain"
+          }
+        ],
+        "skippedLevels": []
+      }
+    },
+    {
+      "id": "image-alt",
+      "name": "Image Alt Text",
+      "status": "success",
+      "score": 15,
+      "maxScore": 15,
+      "message": "A página não possui imagens para verificar.",
+      "details": {
+        "total": 0,
+        "withAlt": 0,
+        "emptyAlt": 0,
+        "withoutAlt": 0,
+        "missingAltImages": []
+      }
+    },
+    {
+      "id": "canonical",
+      "name": "Canonical",
+      "status": "error",
+      "score": 0,
+      "maxScore": 10,
+      "message": "A página não possui uma URL canonical.",
+      "recommendation": "Adicione uma tag link com rel canonical e um href preenchido.",
+      "details": {
+        "count": 0,
+        "urls": [],
+        "emptyCount": 0
+      }
+    },
+    {
+      "id": "open-graph",
+      "name": "Open Graph",
+      "status": "error",
+      "score": 0,
+      "maxScore": 10,
+      "message": "Nenhuma propriedade Open Graph obrigatória está preenchida.",
+      "recommendation": "Adicione og:title, og:description, og:image e og:url com conteúdos válidos.",
+      "details": {
+        "required": [
+          "og:title",
+          "og:description",
+          "og:image",
+          "og:url"
+        ],
+        "present": 0,
+        "missing": [
+          "og:title",
+          "og:description",
+          "og:image",
+          "og:url"
+        ],
+        "empty": [],
+        "values": {
+          "og:title": null,
+          "og:description": null,
+          "og:image": null,
+          "og:url": null
+        }
+      }
+    },
+    {
+      "id": "https",
+      "name": "HTTPS",
+      "status": "success",
+      "score": 5,
+      "maxScore": 5,
+      "message": "A página está sendo entregue por HTTPS.",
+      "details": {
+        "url": "https://example.com/",
+        "protocol": "https:"
+      }
+    }
+  ]
 }
 ```
 
@@ -145,9 +342,9 @@ Invoke-RestMethod `
 
 A rota raiz `GET /` não foi criada. Portanto, acessar apenas `http://localhost:3000` no navegador retorna `404` intencionalmente.
 
-## Contrato planejado da análise
+## Contrato da análise
 
-Todos os analyzers retornarão o mesmo formato:
+Todos os analyzers retornam o mesmo formato:
 
 ```ts
 interface SEOCheckResult {
@@ -162,7 +359,7 @@ interface SEOCheckResult {
 }
 ```
 
-A resposta final de `POST /api/analyze` deverá seguir este formato geral:
+A resposta de `POST /api/analyze` segue este formato geral:
 
 ```json
 {
@@ -178,7 +375,7 @@ A resposta final de `POST /api/analyze` deverá seguir este formato geral:
 }
 ```
 
-## Score planejado
+## Score
 
 | Verificação | Peso |
 | --- | ---: |
@@ -219,16 +416,17 @@ Essas medidas reduzem o risco do MVP, mas não substituem controles adicionais d
 - [x] Validar a URL com Zod
 - [x] Implementar o carregamento controlado de uma única página
 - [x] Adicionar proteção básica contra SSRF
-- [ ] Instalar o Cheerio e implementar o analyzer de Title
-- [ ] Implementar Meta description
-- [ ] Implementar H1
-- [ ] Implementar hierarquia de headings
-- [ ] Implementar análise de imagens sem `alt`
-- [ ] Implementar Canonical
-- [ ] Implementar Open Graph
-- [ ] Implementar HTTPS
-- [ ] Calcular score, classificação e resumo
-- [ ] Adicionar testes automatizados do backend
+- [x] Instalar o Cheerio e implementar o analyzer de Title
+- [x] Implementar Meta description
+- [x] Implementar H1
+- [x] Implementar hierarquia de headings
+- [x] Implementar análise de imagens sem `alt`
+- [x] Implementar Canonical
+- [x] Implementar Open Graph
+- [x] Implementar HTTPS
+- [x] Calcular score, classificação e resumo
+- [x] Adicionar testes unitários do backend
+- [ ] Adicionar testes de integração do endpoint e do carregamento de páginas
 - [ ] Criar o frontend com React, Vite e Tailwind CSS
 - [ ] Integrar o formulário do frontend ao endpoint
 
