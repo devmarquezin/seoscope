@@ -36,6 +36,8 @@ export interface PageFetchResult {
   sizeInBytes: number;
 }
 
+export type PageFetcher = (rawUrl: string) => Promise<PageFetchResult>;
+
 function normalizeHostname(hostname: string): string {
   return hostname.replace(/^\[|\]$/g, "").toLowerCase();
 }
