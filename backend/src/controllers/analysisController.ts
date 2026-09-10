@@ -44,7 +44,7 @@ export async function analyzePage(
 
   try {
     const page = await fetchPage(parsedBody.data.url);
-    const results = analyzeSeo(page.html);
+    const results = analyzeSeo(page.html, page.finalUrl);
 
     response.status(200).json({
       url: page.requestedUrl,
@@ -53,7 +53,8 @@ export async function analyzePage(
       contentType: page.contentType,
       sizeInBytes: page.sizeInBytes,
       results,
-      message: "Análise parcial concluída: 7 de 8 verificações implementadas.",
+      message:
+        "Todas as 8 verificações foram executadas. O score geral será adicionado na próxima etapa.",
     });
   } catch (error) {
     if (error instanceof PageFetchError) {

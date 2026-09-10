@@ -27,10 +27,11 @@ O backend inicial está funcionando e já consegue:
 - contar imagens com e sem atributo `alt`, incluindo `alt` vazio separadamente;
 - verificar ausência, preenchimento e duplicidade de tags canonical;
 - verificar `og:title`, `og:description`, `og:image` e `og:url`;
+- verificar se a URL final da página utiliza HTTPS;
 - retornar os resultados no contrato comum `SEOCheckResult`;
 - responder com erros HTTP legíveis para entradas inválidas e falhas externas.
 
-Os analyzers de Title, Meta Description, H1, hierarquia de headings, imagens, Canonical e Open Graph estão implementados. Ainda não há cálculo do score geral ou frontend.
+Todos os oito analyzers do MVP estão implementados: Title, Meta Description, H1, hierarquia de headings, imagens, Canonical, Open Graph e HTTPS. Ainda não há cálculo do score geral ou frontend.
 
 ## Stack
 
@@ -68,6 +69,8 @@ SeoScope/
 │   │   │   ├── h1Analyzer.test.ts
 │   │   │   ├── headingAnalyzer.ts
 │   │   │   ├── headingAnalyzer.test.ts
+│   │   │   ├── httpsAnalyzer.ts
+│   │   │   ├── httpsAnalyzer.test.ts
 │   │   │   ├── imageAnalyzer.ts
 │   │   │   ├── imageAnalyzer.test.ts
 │   │   │   ├── openGraphAnalyzer.ts
@@ -100,6 +103,8 @@ SeoScope/
 - `h1Analyzer.test.ts`: testa H1 ausente, vazio, único, múltiplo e normalização de espaços.
 - `headingAnalyzer.ts`: conta H1–H6 e detecta saltos ascendentes entre headings consecutivos.
 - `headingAnalyzer.test.ts`: testa ausência, sequências válidas, saltos de nível, contagens e separação da regra de H1.
+- `httpsAnalyzer.ts`: verifica se a URL final que entregou o HTML utiliza HTTPS.
+- `httpsAnalyzer.test.ts`: testa HTTPS, HTTP, URLs completas e entrada inválida.
 - `imageAnalyzer.ts`: conta imagens com, sem e com valor vazio no atributo `alt`, aplicando score proporcional.
 - `imageAnalyzer.test.ts`: testa páginas sem imagens, atributos presentes, vazios, ausentes e detalhes das imagens afetadas.
 - `openGraphAnalyzer.ts`: verifica o preenchimento das quatro propriedades Open Graph exigidas pelo MVP.
@@ -296,9 +301,21 @@ Resposta atual aproximada:
           "og:url": null
         }
       }
+    },
+    {
+      "id": "https",
+      "name": "HTTPS",
+      "status": "success",
+      "score": 5,
+      "maxScore": 5,
+      "message": "A página está sendo entregue por HTTPS.",
+      "details": {
+        "url": "https://example.com/",
+        "protocol": "https:"
+      }
     }
   ],
-  "message": "Análise parcial concluída: 7 de 8 verificações implementadas."
+  "message": "Todas as 8 verificações foram executadas. O score geral será adicionado na próxima etapa."
 }
 ```
 
@@ -395,7 +412,7 @@ Essas medidas reduzem o risco do MVP, mas não substituem controles adicionais d
 - [x] Implementar análise de imagens sem `alt`
 - [x] Implementar Canonical
 - [x] Implementar Open Graph
-- [ ] Implementar HTTPS
+- [x] Implementar HTTPS
 - [ ] Calcular score, classificação e resumo
 - [ ] Adicionar testes automatizados do backend
 - [ ] Criar o frontend com React, Vite e Tailwind CSS
