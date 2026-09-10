@@ -22,10 +22,11 @@ O backend inicial está funcionando e já consegue:
 - retornar metadados básicos da página carregada;
 - analisar a presença, o conteúdo e o comprimento do Title;
 - analisar a presença, o conteúdo e o comprimento da Meta Description;
+- analisar a presença, a quantidade e o conteúdo dos headings H1;
 - retornar os resultados no contrato comum `SEOCheckResult`;
 - responder com erros HTTP legíveis para entradas inválidas e falhas externas.
 
-Os analyzers de Title e Meta Description estão implementados. Ainda não há cálculo do score geral ou frontend.
+Os analyzers de Title, Meta Description e H1 estão implementados. Ainda não há cálculo do score geral ou frontend.
 
 ## Stack
 
@@ -57,6 +58,8 @@ SeoScope/
 │   │   ├── analyzers/
 │   │   │   ├── descriptionAnalyzer.ts
 │   │   │   ├── descriptionAnalyzer.test.ts
+│   │   │   ├── h1Analyzer.ts
+│   │   │   ├── h1Analyzer.test.ts
 │   │   │   ├── titleAnalyzer.ts
 │   │   │   └── titleAnalyzer.test.ts
 │   │   ├── routes/
@@ -79,6 +82,8 @@ SeoScope/
 - `analysisController.ts`: valida a entrada, chama o serviço de carregamento e transforma falhas em respostas HTTP.
 - `descriptionAnalyzer.ts`: verifica se a Meta Description existe, se está preenchida e se seu comprimento atende à heurística interna.
 - `descriptionAnalyzer.test.ts`: testa ausência, conteúdo vazio, limites de comprimento, capitalização e espaços irregulares.
+- `h1Analyzer.ts`: verifica ausência, conteúdo e quantidade de headings H1.
+- `h1Analyzer.test.ts`: testa H1 ausente, vazio, único, múltiplo e normalização de espaços.
 - `titleAnalyzer.ts`: verifica se o Title existe, se está preenchido e se seu comprimento atende à heurística interna.
 - `titleAnalyzer.test.ts`: testa os cenários de Title ausente, vazio, curto, longo, adequado e com espaços irregulares.
 - `analysisRoutes.ts`: registra a rota `POST /api/analyze`.
@@ -170,9 +175,23 @@ Resposta atual aproximada:
         "description": null,
         "length": 0
       }
+    },
+    {
+      "id": "h1",
+      "name": "H1",
+      "status": "success",
+      "score": 15,
+      "maxScore": 15,
+      "message": "A página possui um único H1 preenchido.",
+      "details": {
+        "count": 1,
+        "headings": [
+          "Example Domain"
+        ]
+      }
     }
   ],
-  "message": "Análise parcial concluída: 2 de 8 verificações implementadas."
+  "message": "Análise parcial concluída: 3 de 8 verificações implementadas."
 }
 ```
 
@@ -264,7 +283,7 @@ Essas medidas reduzem o risco do MVP, mas não substituem controles adicionais d
 - [x] Adicionar proteção básica contra SSRF
 - [x] Instalar o Cheerio e implementar o analyzer de Title
 - [x] Implementar Meta description
-- [ ] Implementar H1
+- [x] Implementar H1
 - [ ] Implementar hierarquia de headings
 - [ ] Implementar análise de imagens sem `alt`
 - [ ] Implementar Canonical
