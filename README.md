@@ -26,10 +26,11 @@ O backend inicial está funcionando e já consegue:
 - analisar a contagem e os saltos de hierarquia entre H1 e H6;
 - contar imagens com e sem atributo `alt`, incluindo `alt` vazio separadamente;
 - verificar ausência, preenchimento e duplicidade de tags canonical;
+- verificar `og:title`, `og:description`, `og:image` e `og:url`;
 - retornar os resultados no contrato comum `SEOCheckResult`;
 - responder com erros HTTP legíveis para entradas inválidas e falhas externas.
 
-Os analyzers de Title, Meta Description, H1, hierarquia de headings, imagens e Canonical estão implementados. Ainda não há cálculo do score geral ou frontend.
+Os analyzers de Title, Meta Description, H1, hierarquia de headings, imagens, Canonical e Open Graph estão implementados. Ainda não há cálculo do score geral ou frontend.
 
 ## Stack
 
@@ -69,6 +70,8 @@ SeoScope/
 │   │   │   ├── headingAnalyzer.test.ts
 │   │   │   ├── imageAnalyzer.ts
 │   │   │   ├── imageAnalyzer.test.ts
+│   │   │   ├── openGraphAnalyzer.ts
+│   │   │   ├── openGraphAnalyzer.test.ts
 │   │   │   ├── titleAnalyzer.ts
 │   │   │   └── titleAnalyzer.test.ts
 │   │   ├── routes/
@@ -99,6 +102,8 @@ SeoScope/
 - `headingAnalyzer.test.ts`: testa ausência, sequências válidas, saltos de nível, contagens e separação da regra de H1.
 - `imageAnalyzer.ts`: conta imagens com, sem e com valor vazio no atributo `alt`, aplicando score proporcional.
 - `imageAnalyzer.test.ts`: testa páginas sem imagens, atributos presentes, vazios, ausentes e detalhes das imagens afetadas.
+- `openGraphAnalyzer.ts`: verifica o preenchimento das quatro propriedades Open Graph exigidas pelo MVP.
+- `openGraphAnalyzer.test.ts`: testa propriedades ausentes, vazias, parciais, capitalizadas e duplicadas.
 - `titleAnalyzer.ts`: verifica se o Title existe, se está preenchido e se seu comprimento atende à heurística interna.
 - `titleAnalyzer.test.ts`: testa os cenários de Title ausente, vazio, curto, longo, adequado e com espaços irregulares.
 - `analysisRoutes.ts`: registra a rota `POST /api/analyze`.
@@ -260,9 +265,40 @@ Resposta atual aproximada:
         "urls": [],
         "emptyCount": 0
       }
+    },
+    {
+      "id": "open-graph",
+      "name": "Open Graph",
+      "status": "error",
+      "score": 0,
+      "maxScore": 10,
+      "message": "Nenhuma propriedade Open Graph obrigatória está preenchida.",
+      "recommendation": "Adicione og:title, og:description, og:image e og:url com conteúdos válidos.",
+      "details": {
+        "required": [
+          "og:title",
+          "og:description",
+          "og:image",
+          "og:url"
+        ],
+        "present": 0,
+        "missing": [
+          "og:title",
+          "og:description",
+          "og:image",
+          "og:url"
+        ],
+        "empty": [],
+        "values": {
+          "og:title": null,
+          "og:description": null,
+          "og:image": null,
+          "og:url": null
+        }
+      }
     }
   ],
-  "message": "Análise parcial concluída: 6 de 8 verificações implementadas."
+  "message": "Análise parcial concluída: 7 de 8 verificações implementadas."
 }
 ```
 
@@ -358,7 +394,7 @@ Essas medidas reduzem o risco do MVP, mas não substituem controles adicionais d
 - [x] Implementar hierarquia de headings
 - [x] Implementar análise de imagens sem `alt`
 - [x] Implementar Canonical
-- [ ] Implementar Open Graph
+- [x] Implementar Open Graph
 - [ ] Implementar HTTPS
 - [ ] Calcular score, classificação e resumo
 - [ ] Adicionar testes automatizados do backend

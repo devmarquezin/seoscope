@@ -53,7 +53,7 @@ export async function analyzePage(
       contentType: page.contentType,
       sizeInBytes: page.sizeInBytes,
       results,
-      message: "Análise parcial concluída: 6 de 8 verificações implementadas.",
+      message: "Análise parcial concluída: 7 de 8 verificações implementadas.",
     });
   } catch (error) {
     if (error instanceof PageFetchError) {
