@@ -25,8 +25,12 @@ export type AnalysisStatus =
 
 export interface SEOAnalysis {
   url: string;
+  finalUrl: string;
   score: number;
   status: AnalysisStatus;
   summary: AnalysisSummary;
+  statusCode: number;
+  contentType: string;
+  sizeInBytes: number;
   results: SEOCheckResult[];
 }

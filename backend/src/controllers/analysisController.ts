@@ -2,6 +2,12 @@ import type { Request, Response } from "express";
 import { z } from "zod";
 import { fetchPage, PageFetchError } from "../services/pageFetcher.js";
 import { analyzeSeo } from "../services/seoAnalyzer.js";
+import type { SEOAnalysis } from "../types/analysis.js";
+import {
+  calculateScore,
+  classifyScore,
+  createSummary,
+} from "../utils/scoreCalculator.js";
 
 const analyzeRequestSchema = z.object({
   url: z
@@ -45,17 +51,20 @@ export async function analyzePage(
   try {
     const page = await fetchPage(parsedBody.data.url);
     const results = analyzeSeo(page.html, page.finalUrl);
-
-    response.status(200).json({
+    const score = calculateScore(results);
+    const analysis: SEOAnalysis = {
       url: page.requestedUrl,
       finalUrl: page.finalUrl,
+      score,
+      status: classifyScore(score),
+      summary: createSummary(results),
       statusCode: page.statusCode,
       contentType: page.contentType,
       sizeInBytes: page.sizeInBytes,
       results,
-      message:
-        "Todas as 8 verificações foram executadas. O score geral será adicionado na próxima etapa.",
-    });
+    };
+
+    response.status(200).json(analysis);
   } catch (error) {
     if (error instanceof PageFetchError) {
       response.status(statusForPageFetchError(error)).json({

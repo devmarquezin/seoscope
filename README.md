@@ -31,7 +31,7 @@ O backend inicial está funcionando e já consegue:
 - retornar os resultados no contrato comum `SEOCheckResult`;
 - responder com erros HTTP legíveis para entradas inválidas e falhas externas.
 
-Todos os oito analyzers do MVP estão implementados: Title, Meta Description, H1, hierarquia de headings, imagens, Canonical, Open Graph e HTTPS. Ainda não há cálculo do score geral ou frontend.
+Todos os oito analyzers do MVP estão implementados, assim como o score geral, a classificação e o resumo de resultados. Ainda não há frontend.
 
 ## Stack
 
@@ -84,6 +84,9 @@ SeoScope/
 │   │   │   └── seoAnalyzer.ts
 │   │   ├── types/
 │   │   │   └── analysis.ts
+│   │   ├── utils/
+│   │   │   ├── scoreCalculator.ts
+│   │   │   └── scoreCalculator.test.ts
 │   │   ├── app.ts
 │   │   └── server.ts
 │   ├── package.json
@@ -114,11 +117,13 @@ SeoScope/
 - `analysisRoutes.ts`: registra a rota `POST /api/analyze`.
 - `pageFetcher.ts`: carrega uma página e concentra limites de rede e a proteção básica contra SSRF.
 - `seoAnalyzer.ts`: carrega o HTML no Cheerio uma vez e coordena os analyzers implementados.
-- `analysis.ts`: define os contratos TypeScript das futuras verificações e da análise completa.
+- `analysis.ts`: define os contratos TypeScript das verificações e da análise completa.
+- `scoreCalculator.ts`: soma os pontos, classifica a nota e conta sucessos, avisos e erros.
+- `scoreCalculator.test.ts`: testa soma, arredondamento, limites, classificações e resumo.
 - `app.ts`: configura o Express, o parser JSON, as rotas e a resposta 404.
 - `server.ts`: inicia o servidor HTTP.
 
-Os próximos arquivos de analyzer e a pasta `utils/` serão criados quando tiverem implementações reais, evitando estrutura vazia ou código fictício.
+Novos arquivos só serão criados quando tiverem uma responsabilidade real, evitando estrutura vazia ou código fictício.
 
 ## Como executar
 
@@ -171,6 +176,13 @@ Resposta atual aproximada:
 {
   "url": "https://example.com/",
   "finalUrl": "https://example.com/",
+  "score": 55,
+  "status": "needs-improvement",
+  "summary": {
+    "passed": 4,
+    "warnings": 1,
+    "errors": 3
+  },
   "statusCode": 200,
   "contentType": "text/html",
   "sizeInBytes": 559,
@@ -314,8 +326,7 @@ Resposta atual aproximada:
         "protocol": "https:"
       }
     }
-  ],
-  "message": "Todas as 8 verificações foram executadas. O score geral será adicionado na próxima etapa."
+  ]
 }
 ```
 
@@ -331,9 +342,9 @@ Invoke-RestMethod `
 
 A rota raiz `GET /` não foi criada. Portanto, acessar apenas `http://localhost:3000` no navegador retorna `404` intencionalmente.
 
-## Contrato planejado da análise
+## Contrato da análise
 
-Todos os analyzers retornarão o mesmo formato:
+Todos os analyzers retornam o mesmo formato:
 
 ```ts
 interface SEOCheckResult {
@@ -348,7 +359,7 @@ interface SEOCheckResult {
 }
 ```
 
-A resposta final de `POST /api/analyze` deverá seguir este formato geral:
+A resposta de `POST /api/analyze` segue este formato geral:
 
 ```json
 {
@@ -364,7 +375,7 @@ A resposta final de `POST /api/analyze` deverá seguir este formato geral:
 }
 ```
 
-## Score planejado
+## Score
 
 | Verificação | Peso |
 | --- | ---: |
@@ -413,8 +424,9 @@ Essas medidas reduzem o risco do MVP, mas não substituem controles adicionais d
 - [x] Implementar Canonical
 - [x] Implementar Open Graph
 - [x] Implementar HTTPS
-- [ ] Calcular score, classificação e resumo
-- [ ] Adicionar testes automatizados do backend
+- [x] Calcular score, classificação e resumo
+- [x] Adicionar testes unitários do backend
+- [ ] Adicionar testes de integração do endpoint e do carregamento de páginas
 - [ ] Criar o frontend com React, Vite e Tailwind CSS
 - [ ] Integrar o formulário do frontend ao endpoint
 
