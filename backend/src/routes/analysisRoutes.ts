@@ -1,6 +1,11 @@
 import { Router } from "express";
-import { analyzePage } from "../controllers/analysisController.js";
+import { createAnalyzePage } from "../controllers/analysisController.js";
+import type { PageFetcher } from "../services/pageFetcher.js";
 
-export const analysisRouter = Router();
+export function createAnalysisRouter(pageFetcher?: PageFetcher): Router {
+  const analysisRouter = Router();
 
-analysisRouter.post("/analyze", analyzePage);
+  analysisRouter.post("/analyze", createAnalyzePage(pageFetcher));
+
+  return analysisRouter;
+}

@@ -1,6 +1,10 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
-import { fetchPage, PageFetchError } from "../services/pageFetcher.js";
+import {
+  fetchPage,
+  PageFetchError,
+  type PageFetcher,
+} from "../services/pageFetcher.js";
 import { analyzeSeo } from "../services/seoAnalyzer.js";
 import type { SEOAnalysis } from "../types/analysis.js";
 import {
@@ -30,53 +34,55 @@ function statusForPageFetchError(error: PageFetchError): number {
   return 502;
 }
 
-export async function analyzePage(
-  request: Request,
-  response: Response,
-): Promise<void> {
-  const parsedBody = analyzeRequestSchema.safeParse(request.body);
+export function createAnalyzePage(pageFetcher: PageFetcher = fetchPage) {
+  return async function analyzePage(
+    request: Request,
+    response: Response,
+  ): Promise<void> {
+    const parsedBody = analyzeRequestSchema.safeParse(request.body);
 
-  if (!parsedBody.success) {
-    response.status(400).json({
-      error: "invalid_request",
-      message: "Não foi possível validar a requisição.",
-      issues: parsedBody.error.issues.map((issue) => ({
-        path: issue.path.join("."),
-        message: issue.message,
-      })),
-    });
-    return;
-  }
-
-  try {
-    const page = await fetchPage(parsedBody.data.url);
-    const results = analyzeSeo(page.html, page.finalUrl);
-    const score = calculateScore(results);
-    const analysis: SEOAnalysis = {
-      url: page.requestedUrl,
-      finalUrl: page.finalUrl,
-      score,
-      status: classifyScore(score),
-      summary: createSummary(results),
-      statusCode: page.statusCode,
-      contentType: page.contentType,
-      sizeInBytes: page.sizeInBytes,
-      results,
-    };
-
-    response.status(200).json(analysis);
-  } catch (error) {
-    if (error instanceof PageFetchError) {
-      response.status(statusForPageFetchError(error)).json({
-        error: error.code.toLowerCase(),
-        message: error.message,
+    if (!parsedBody.success) {
+      response.status(400).json({
+        error: "invalid_request",
+        message: "Não foi possível validar a requisição.",
+        issues: parsedBody.error.issues.map((issue) => ({
+          path: issue.path.join("."),
+          message: issue.message,
+        })),
       });
       return;
     }
 
-    response.status(500).json({
-      error: "internal_error",
-      message: "Ocorreu um erro interno inesperado.",
-    });
-  }
+    try {
+      const page = await pageFetcher(parsedBody.data.url);
+      const results = analyzeSeo(page.html, page.finalUrl);
+      const score = calculateScore(results);
+      const analysis: SEOAnalysis = {
+        url: page.requestedUrl,
+        finalUrl: page.finalUrl,
+        score,
+        status: classifyScore(score),
+        summary: createSummary(results),
+        statusCode: page.statusCode,
+        contentType: page.contentType,
+        sizeInBytes: page.sizeInBytes,
+        results,
+      };
+
+      response.status(200).json(analysis);
+    } catch (error) {
+      if (error instanceof PageFetchError) {
+        response.status(statusForPageFetchError(error)).json({
+          error: error.code.toLowerCase(),
+          message: error.message,
+        });
+        return;
+      }
+
+      response.status(500).json({
+        error: "internal_error",
+        message: "Ocorreu um erro interno inesperado.",
+      });
+    }
+  };
 }

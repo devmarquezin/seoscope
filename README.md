@@ -29,9 +29,12 @@ O backend inicial está funcionando e já consegue:
 - verificar `og:title`, `og:description`, `og:image` e `og:url`;
 - verificar se a URL final da página utiliza HTTPS;
 - retornar os resultados no contrato comum `SEOCheckResult`;
+- executar testes do endpoint completo e do carregamento seguro sem depender da internet;
 - responder com erros HTTP legíveis para entradas inválidas e falhas externas.
 
 Todos os oito analyzers do MVP estão implementados, assim como o score geral, a classificação e o resumo de resultados. Ainda não há frontend.
+
+A suíte atual possui 65 testes unitários e de integração.
 
 ## Stack
 
@@ -58,6 +61,7 @@ Todos os oito analyzers do MVP estão implementados, assim como o score geral, a
 SeoScope/
 ├── backend/
 │   ├── src/
+│   │   ├── app.integration.test.ts
 │   │   ├── controllers/
 │   │   │   └── analysisController.ts
 │   │   ├── analyzers/
@@ -81,6 +85,7 @@ SeoScope/
 │   │   │   └── analysisRoutes.ts
 │   │   ├── services/
 │   │   │   ├── pageFetcher.ts
+│   │   │   ├── pageFetcher.test.ts
 │   │   │   └── seoAnalyzer.ts
 │   │   ├── types/
 │   │   │   └── analysis.ts
@@ -98,6 +103,7 @@ SeoScope/
 ### Responsabilidade dos arquivos
 
 - `analysisController.ts`: valida a entrada, chama o serviço de carregamento e transforma falhas em respostas HTTP.
+- `app.integration.test.ts`: testa o endpoint completo, validação, mapeamento de erros, score e rota 404 com servidor HTTP temporário.
 - `canonicalAnalyzer.ts`: verifica ausência, preenchimento e duplicidade de tags canonical.
 - `canonicalAnalyzer.test.ts`: testa canonical ausente, sem `href`, vazia, única, múltipla e variações do atributo `rel`.
 - `descriptionAnalyzer.ts`: verifica se a Meta Description existe, se está preenchida e se seu comprimento atende à heurística interna.
@@ -116,6 +122,7 @@ SeoScope/
 - `titleAnalyzer.test.ts`: testa os cenários de Title ausente, vazio, curto, longo, adequado e com espaços irregulares.
 - `analysisRoutes.ts`: registra a rota `POST /api/analyze`.
 - `pageFetcher.ts`: carrega uma página e concentra limites de rede e a proteção básica contra SSRF.
+- `pageFetcher.test.ts`: testa protocolos, IPs privados, redirects, tipo, tamanho e erros de resposta sem acessar a internet.
 - `seoAnalyzer.ts`: carrega o HTML no Cheerio uma vez e coordena os analyzers implementados.
 - `analysis.ts`: define os contratos TypeScript das verificações e da análise completa.
 - `scoreCalculator.ts`: soma os pontos, classifica a nota e conta sucessos, avisos e erros.
@@ -426,7 +433,7 @@ Essas medidas reduzem o risco do MVP, mas não substituem controles adicionais d
 - [x] Implementar HTTPS
 - [x] Calcular score, classificação e resumo
 - [x] Adicionar testes unitários do backend
-- [ ] Adicionar testes de integração do endpoint e do carregamento de páginas
+- [x] Adicionar testes de integração do endpoint e do carregamento de páginas
 - [ ] Criar o frontend com React, Vite e Tailwind CSS
 - [ ] Integrar o formulário do frontend ao endpoint
 
