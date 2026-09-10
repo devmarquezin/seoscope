@@ -21,10 +21,11 @@ O backend inicial está funcionando e já consegue:
 - aceitar somente documentos HTML ou XHTML;
 - retornar metadados básicos da página carregada;
 - analisar a presença, o conteúdo e o comprimento do Title;
-- retornar o resultado do Title no contrato comum `SEOCheckResult`;
+- analisar a presença, o conteúdo e o comprimento da Meta Description;
+- retornar os resultados no contrato comum `SEOCheckResult`;
 - responder com erros HTTP legíveis para entradas inválidas e falhas externas.
 
-Somente o analyzer de Title está implementado. Ainda não há cálculo do score geral ou frontend.
+Os analyzers de Title e Meta Description estão implementados. Ainda não há cálculo do score geral ou frontend.
 
 ## Stack
 
@@ -54,6 +55,8 @@ SeoScope/
 │   │   ├── controllers/
 │   │   │   └── analysisController.ts
 │   │   ├── analyzers/
+│   │   │   ├── descriptionAnalyzer.ts
+│   │   │   ├── descriptionAnalyzer.test.ts
 │   │   │   ├── titleAnalyzer.ts
 │   │   │   └── titleAnalyzer.test.ts
 │   │   ├── routes/
@@ -74,6 +77,8 @@ SeoScope/
 ### Responsabilidade dos arquivos
 
 - `analysisController.ts`: valida a entrada, chama o serviço de carregamento e transforma falhas em respostas HTTP.
+- `descriptionAnalyzer.ts`: verifica se a Meta Description existe, se está preenchida e se seu comprimento atende à heurística interna.
+- `descriptionAnalyzer.test.ts`: testa ausência, conteúdo vazio, limites de comprimento, capitalização e espaços irregulares.
 - `titleAnalyzer.ts`: verifica se o Title existe, se está preenchido e se seu comprimento atende à heurística interna.
 - `titleAnalyzer.test.ts`: testa os cenários de Title ausente, vazio, curto, longo, adequado e com espaços irregulares.
 - `analysisRoutes.ts`: registra a rota `POST /api/analyze`.
@@ -152,9 +157,22 @@ Resposta atual aproximada:
         "title": "Example Domain",
         "length": 14
       }
+    },
+    {
+      "id": "meta-description",
+      "name": "Meta Description",
+      "status": "error",
+      "score": 0,
+      "maxScore": 15,
+      "message": "A página não possui uma meta description.",
+      "recommendation": "Adicione uma meta description que resuma o conteúdo da página.",
+      "details": {
+        "description": null,
+        "length": 0
+      }
     }
   ],
-  "message": "Análise parcial concluída: 1 de 8 verificações implementadas."
+  "message": "Análise parcial concluída: 2 de 8 verificações implementadas."
 }
 ```
 
@@ -245,7 +263,7 @@ Essas medidas reduzem o risco do MVP, mas não substituem controles adicionais d
 - [x] Implementar o carregamento controlado de uma única página
 - [x] Adicionar proteção básica contra SSRF
 - [x] Instalar o Cheerio e implementar o analyzer de Title
-- [ ] Implementar Meta description
+- [x] Implementar Meta description
 - [ ] Implementar H1
 - [ ] Implementar hierarquia de headings
 - [ ] Implementar análise de imagens sem `alt`
