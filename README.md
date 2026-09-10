@@ -23,10 +23,11 @@ O backend inicial está funcionando e já consegue:
 - analisar a presença, o conteúdo e o comprimento do Title;
 - analisar a presença, o conteúdo e o comprimento da Meta Description;
 - analisar a presença, a quantidade e o conteúdo dos headings H1;
+- analisar a contagem e os saltos de hierarquia entre H1 e H6;
 - retornar os resultados no contrato comum `SEOCheckResult`;
 - responder com erros HTTP legíveis para entradas inválidas e falhas externas.
 
-Os analyzers de Title, Meta Description e H1 estão implementados. Ainda não há cálculo do score geral ou frontend.
+Os analyzers de Title, Meta Description, H1 e hierarquia de headings estão implementados. Ainda não há cálculo do score geral ou frontend.
 
 ## Stack
 
@@ -60,6 +61,8 @@ SeoScope/
 │   │   │   ├── descriptionAnalyzer.test.ts
 │   │   │   ├── h1Analyzer.ts
 │   │   │   ├── h1Analyzer.test.ts
+│   │   │   ├── headingAnalyzer.ts
+│   │   │   ├── headingAnalyzer.test.ts
 │   │   │   ├── titleAnalyzer.ts
 │   │   │   └── titleAnalyzer.test.ts
 │   │   ├── routes/
@@ -84,6 +87,8 @@ SeoScope/
 - `descriptionAnalyzer.test.ts`: testa ausência, conteúdo vazio, limites de comprimento, capitalização e espaços irregulares.
 - `h1Analyzer.ts`: verifica ausência, conteúdo e quantidade de headings H1.
 - `h1Analyzer.test.ts`: testa H1 ausente, vazio, único, múltiplo e normalização de espaços.
+- `headingAnalyzer.ts`: conta H1–H6 e detecta saltos ascendentes entre headings consecutivos.
+- `headingAnalyzer.test.ts`: testa ausência, sequências válidas, saltos de nível, contagens e separação da regra de H1.
 - `titleAnalyzer.ts`: verifica se o Title existe, se está preenchido e se seu comprimento atende à heurística interna.
 - `titleAnalyzer.test.ts`: testa os cenários de Title ausente, vazio, curto, longo, adequado e com espaços irregulares.
 - `analysisRoutes.ts`: registra a rota `POST /api/analyze`.
@@ -189,9 +194,36 @@ Resposta atual aproximada:
           "Example Domain"
         ]
       }
+    },
+    {
+      "id": "heading-hierarchy",
+      "name": "Heading Hierarchy",
+      "status": "success",
+      "score": 10,
+      "maxScore": 10,
+      "message": "A página possui 1 heading sem saltos de nível.",
+      "details": {
+        "total": 1,
+        "counts": {
+          "h1": 1,
+          "h2": 0,
+          "h3": 0,
+          "h4": 0,
+          "h5": 0,
+          "h6": 0
+        },
+        "outline": [
+          {
+            "level": 1,
+            "tag": "h1",
+            "text": "Example Domain"
+          }
+        ],
+        "skippedLevels": []
+      }
     }
   ],
-  "message": "Análise parcial concluída: 3 de 8 verificações implementadas."
+  "message": "Análise parcial concluída: 4 de 8 verificações implementadas."
 }
 ```
 
@@ -284,7 +316,7 @@ Essas medidas reduzem o risco do MVP, mas não substituem controles adicionais d
 - [x] Instalar o Cheerio e implementar o analyzer de Title
 - [x] Implementar Meta description
 - [x] Implementar H1
-- [ ] Implementar hierarquia de headings
+- [x] Implementar hierarquia de headings
 - [ ] Implementar análise de imagens sem `alt`
 - [ ] Implementar Canonical
 - [ ] Implementar Open Graph
