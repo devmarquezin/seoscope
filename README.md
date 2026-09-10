@@ -25,10 +25,11 @@ O backend inicial está funcionando e já consegue:
 - analisar a presença, a quantidade e o conteúdo dos headings H1;
 - analisar a contagem e os saltos de hierarquia entre H1 e H6;
 - contar imagens com e sem atributo `alt`, incluindo `alt` vazio separadamente;
+- verificar ausência, preenchimento e duplicidade de tags canonical;
 - retornar os resultados no contrato comum `SEOCheckResult`;
 - responder com erros HTTP legíveis para entradas inválidas e falhas externas.
 
-Os analyzers de Title, Meta Description, H1, hierarquia de headings e imagens estão implementados. Ainda não há cálculo do score geral ou frontend.
+Os analyzers de Title, Meta Description, H1, hierarquia de headings, imagens e Canonical estão implementados. Ainda não há cálculo do score geral ou frontend.
 
 ## Stack
 
@@ -58,6 +59,8 @@ SeoScope/
 │   │   ├── controllers/
 │   │   │   └── analysisController.ts
 │   │   ├── analyzers/
+│   │   │   ├── canonicalAnalyzer.ts
+│   │   │   ├── canonicalAnalyzer.test.ts
 │   │   │   ├── descriptionAnalyzer.ts
 │   │   │   ├── descriptionAnalyzer.test.ts
 │   │   │   ├── h1Analyzer.ts
@@ -86,6 +89,8 @@ SeoScope/
 ### Responsabilidade dos arquivos
 
 - `analysisController.ts`: valida a entrada, chama o serviço de carregamento e transforma falhas em respostas HTTP.
+- `canonicalAnalyzer.ts`: verifica ausência, preenchimento e duplicidade de tags canonical.
+- `canonicalAnalyzer.test.ts`: testa canonical ausente, sem `href`, vazia, única, múltipla e variações do atributo `rel`.
 - `descriptionAnalyzer.ts`: verifica se a Meta Description existe, se está preenchida e se seu comprimento atende à heurística interna.
 - `descriptionAnalyzer.test.ts`: testa ausência, conteúdo vazio, limites de comprimento, capitalização e espaços irregulares.
 - `h1Analyzer.ts`: verifica ausência, conteúdo e quantidade de headings H1.
@@ -241,9 +246,23 @@ Resposta atual aproximada:
         "withoutAlt": 0,
         "missingAltImages": []
       }
+    },
+    {
+      "id": "canonical",
+      "name": "Canonical",
+      "status": "error",
+      "score": 0,
+      "maxScore": 10,
+      "message": "A página não possui uma URL canonical.",
+      "recommendation": "Adicione uma tag link com rel canonical e um href preenchido.",
+      "details": {
+        "count": 0,
+        "urls": [],
+        "emptyCount": 0
+      }
     }
   ],
-  "message": "Análise parcial concluída: 5 de 8 verificações implementadas."
+  "message": "Análise parcial concluída: 6 de 8 verificações implementadas."
 }
 ```
 
@@ -338,7 +357,7 @@ Essas medidas reduzem o risco do MVP, mas não substituem controles adicionais d
 - [x] Implementar H1
 - [x] Implementar hierarquia de headings
 - [x] Implementar análise de imagens sem `alt`
-- [ ] Implementar Canonical
+- [x] Implementar Canonical
 - [ ] Implementar Open Graph
 - [ ] Implementar HTTPS
 - [ ] Calcular score, classificação e resumo

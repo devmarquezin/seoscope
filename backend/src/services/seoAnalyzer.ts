@@ -1,4 +1,5 @@
 import { load } from "cheerio";
+import { analyzeCanonical } from "../analyzers/canonicalAnalyzer.js";
 import { analyzeDescription } from "../analyzers/descriptionAnalyzer.js";
 import { analyzeH1 } from "../analyzers/h1Analyzer.js";
 import { analyzeHeadings } from "../analyzers/headingAnalyzer.js";
@@ -15,5 +16,6 @@ export function analyzeSeo(html: string): SEOCheckResult[] {
     analyzeH1($),
     analyzeHeadings($),
     analyzeImages($),
+    analyzeCanonical($),
   ];
 }
