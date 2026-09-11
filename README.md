@@ -32,7 +32,7 @@ O backend inicial está funcionando e já consegue:
 - executar testes do endpoint completo e do carregamento seguro sem depender da internet;
 - responder com erros HTTP legíveis para entradas inválidas e falhas externas.
 
-Todos os oito analyzers do MVP estão implementados, assim como o score geral, a classificação e o resumo de resultados. O frontend inicial também está configurado com React, TypeScript, Vite e Tailwind CSS. A Home valida a URL, chama a API e apresenta os estados de carregamento, erro e confirmação da análise. A interface completa do relatório ainda não foi implementada.
+Todos os oito analyzers do MVP estão implementados, assim como o score geral, a classificação e o resumo de resultados. O frontend também está configurado com React, TypeScript, Vite e Tailwind CSS. A Home valida a URL, chama a API e apresenta os estados de carregamento, erro e sucesso. Após a análise, a interface exibe o score, a classificação, o resumo e todas as verificações técnicas com suas mensagens e recomendações.
 
 A suíte atual possui 65 testes unitários e de integração.
 
@@ -100,8 +100,15 @@ SeoScope/
 │   ├── src/
 │   │   ├── assets/
 │   │   │   ├── favicon.ico
+│   │   │   ├── fonts/
+│   │   │   │   ├── sofia-pro-medium.woff
+│   │   │   │   ├── sofia-pro-regular.woff
+│   │   │   │   └── sofia-pro-semibold.woff
 │   │   │   └── seoscope-logo.webp
 │   │   ├── components/
+│   │   │   ├── AnalysisResults.tsx
+│   │   │   ├── AnalysisSummary.tsx
+│   │   │   ├── CheckResultCard.tsx
 │   │   │   ├── Header.tsx
 │   │   │   ├── Hero.tsx
 │   │   │   ├── LoadingAnalysis.tsx
@@ -153,8 +160,11 @@ SeoScope/
 - `scoreCalculator.test.ts`: testa soma, arredondamento, limites, classificações e resumo.
 - `app.ts`: configura o Express, o parser JSON, as rotas e a resposta 404.
 - `server.ts`: inicia o servidor HTTP.
-- `frontend/src/assets/`: contém a logo e o favicon oficiais do SeoScope.
-- `frontend/src/components/`: reúne a marca, o Header, o Hero, o formulário e o feedback de carregamento.
+- `frontend/src/assets/`: contém a logo, o favicon e os pesos utilizados da fonte Sofia Pro.
+- `frontend/src/components/AnalysisSummary.tsx`: apresenta o score, a classificação, a URL final e o resumo da análise.
+- `frontend/src/components/AnalysisResults.tsx`: organiza a lista de verificações técnicas retornadas pela API.
+- `frontend/src/components/CheckResultCard.tsx`: apresenta status, pontuação, mensagem e recomendação de cada verificação.
+- `frontend/src/components/`: também reúne a marca, o Header, o Hero, o formulário e o feedback de carregamento.
 - `frontend/src/pages/Home.tsx`: coordena os estados da requisição e a composição da Home.
 - `frontend/src/services/seoApi.ts`: centraliza a chamada a `POST /api/analyze` e normaliza falhas da API.
 - `frontend/src/types/analysis.ts`: espelha o contrato público retornado pelo backend.
@@ -481,7 +491,7 @@ Essas medidas reduzem o risco do MVP, mas não substituem controles adicionais d
 - [x] Adicionar testes de integração do endpoint e do carregamento de páginas
 - [x] Criar o frontend com React, Vite e Tailwind CSS
 - [x] Integrar o formulário do frontend ao endpoint
-- [ ] Implementar a visualização completa do relatório
+- [x] Implementar a visualização completa do relatório
 
 ## Fora do escopo inicial
 
