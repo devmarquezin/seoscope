@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { SEOAnalysis, SEOCheckResult } from '../types/analysis'
 import { Home } from './Home'
+import { TooltipProvider } from '../components/ui/tooltip'
 
 const results: SEOCheckResult[] = [
   {
@@ -102,6 +103,10 @@ function submitUrl(url: string) {
   fireEvent.click(screen.getByRole('button', { name: 'Analisar site' }))
 }
 
+function renderHome() {
+  return render(<TooltipProvider><Home /></TooltipProvider>)
+}
+
 describe('Home', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
@@ -111,7 +116,7 @@ describe('Home', () => {
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
 
-    render(<Home />)
+    renderHome()
     fireEvent.click(screen.getByRole('button', { name: 'Analisar site' }))
 
     expect(screen.getByRole('alert')).toHaveTextContent(
@@ -124,7 +129,7 @@ describe('Home', () => {
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
 
-    render(<Home />)
+    renderHome()
     submitUrl('ftp://example.com')
 
     expect(screen.getByRole('alert')).toHaveTextContent(
@@ -137,7 +142,7 @@ describe('Home', () => {
     const fetchMock = vi.fn(() => new Promise<Response>(() => undefined))
     vi.stubGlobal('fetch', fetchMock)
 
-    render(<Home />)
+    renderHome()
     submitUrl('https://example.com')
 
     const button = screen.getByRole('button', { name: 'Analisando...' })
@@ -153,7 +158,7 @@ describe('Home', () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse(analysis))
     vi.stubGlobal('fetch', fetchMock)
 
-    render(<Home />)
+    renderHome()
     submitUrl(' https://example.com ')
 
     expect(await screen.findByText('Análise concluída')).toBeInTheDocument()
@@ -162,8 +167,9 @@ describe('Home', () => {
     expect(screen.getByText('8 resultados')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Title' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'HTTPS' })).toBeInTheDocument()
-    expect(screen.getByText('Aumente o conteúdo da descrição.')).toBeInTheDocument()
-    expect(screen.getAllByRole('progressbar')).toHaveLength(8)
+    fireEvent.click(screen.getByRole('button', { name: /Meta Description/ }))
+    expect(await screen.findByText('Aumente o conteúdo da descrição.')).toBeInTheDocument()
+    expect(screen.getAllByRole('progressbar')).toHaveLength(3)
     expect(fetchMock).toHaveBeenCalledWith('/api/analyze', {
       method: 'POST',
       headers: {
@@ -185,7 +191,7 @@ describe('Home', () => {
     )
     vi.stubGlobal('fetch', fetchMock)
 
-    render(<Home />)
+    renderHome()
     submitUrl('https://example.com')
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
@@ -206,7 +212,7 @@ describe('Home', () => {
       .mockResolvedValueOnce(jsonResponse(secondAnalysis))
     vi.stubGlobal('fetch', fetchMock)
 
-    render(<Home />)
+    renderHome()
     submitUrl('https://example.com')
 
     expect(await screen.findByText('example.com')).toBeInTheDocument()

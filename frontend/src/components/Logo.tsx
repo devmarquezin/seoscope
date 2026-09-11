@@ -3,11 +3,11 @@ import logoUrl from '../assets/seoscope-logo.webp'
 export function Logo() {
   return (
     <a
-      href="/"
-      className="inline-flex rounded-lg outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-seo-text focus-visible:ring-offset-4 focus-visible:ring-offset-seo-bg"
+      href="#inicio"
+      className="inline-flex rounded-lg outline-none transition-opacity duration-200 hover:opacity-80 focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-background"
       aria-label="SeoScope — início"
     >
-      <span className="relative block h-10 w-40 overflow-hidden sm:w-44">
+      <span className="relative block h-9 w-36 overflow-hidden sm:w-40">
         <img
           src={logoUrl}
           alt="SeoScope"
