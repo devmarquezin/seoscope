@@ -9,17 +9,17 @@ export function AuditItem({ result }: { result: SEOCheckResult }) {
   return (
     <AccordionItem value={result.id} id={`audit-${result.id}`} className="scroll-mt-36 px-4 sm:px-5">
       <AccordionTrigger>
-        <div className="flex min-w-0 flex-1 items-start gap-3 pr-2">
+        <span className="flex min-w-0 flex-1 items-start gap-3 pr-2">
           <StatusIcon status={result.status} className="mt-0.5" />
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <h3 className="font-semibold text-foreground">{result.name}</h3>
+          <span className="min-w-0 flex-1">
+            <span className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <span className="font-semibold text-foreground">{result.name}</span>
               <StatusBadge status={result.status} showIcon={false} />
-            </div>
-            <p className="mt-1.5 text-sm leading-6 text-muted-foreground">{result.message}</p>
-          </div>
-          <p className="hidden shrink-0 text-sm text-muted-foreground sm:block"><strong className="text-foreground">{result.score}</strong>/{result.maxScore}</p>
-        </div>
+            </span>
+            <span className="mt-1.5 block text-sm leading-6 text-muted-foreground">{result.message}</span>
+          </span>
+          <span className="hidden shrink-0 text-sm text-muted-foreground sm:block"><strong className="text-foreground">{result.score}</strong>/{result.maxScore}</span>
+        </span>
       </AccordionTrigger>
       <AccordionContent className="pl-0 sm:pl-8">
         <div className="grid gap-4">
