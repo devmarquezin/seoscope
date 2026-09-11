@@ -108,12 +108,43 @@ SeoScope/
 │   │   ├── components/
 │   │   │   ├── AnalysisResults.tsx
 │   │   │   ├── AnalysisSummary.tsx
-│   │   │   ├── CheckResultCard.tsx
+│   │   │   ├── EmptyAnalysis.tsx
 │   │   │   ├── Header.tsx
 │   │   │   ├── Hero.tsx
 │   │   │   ├── LoadingAnalysis.tsx
 │   │   │   ├── Logo.tsx
-│   │   │   └── UrlForm.tsx
+│   │   │   ├── UrlForm.tsx
+│   │   │   ├── layout/
+│   │   │   │   ├── Footer.tsx
+│   │   │   │   └── SocialLinks.tsx
+│   │   │   ├── seo/
+│   │   │   │   ├── AnalysisOverview.tsx
+│   │   │   │   ├── AuditDetails.tsx
+│   │   │   │   ├── AuditItem.tsx
+│   │   │   │   ├── AuditSection.tsx
+│   │   │   │   ├── CategoryScores.tsx
+│   │   │   │   ├── ImprovementList.tsx
+│   │   │   │   ├── ReportNavigation.tsx
+│   │   │   │   ├── ScoreCircle.tsx
+│   │   │   │   └── StatusBadge.tsx
+│   │   │   └── ui/
+│   │   │       ├── accordion.tsx
+│   │   │       ├── alert.tsx
+│   │   │       ├── badge.tsx
+│   │   │       ├── button.tsx
+│   │   │       ├── card.tsx
+│   │   │       ├── input.tsx
+│   │   │       ├── progress.tsx
+│   │   │       ├── separator.tsx
+│   │   │       ├── sheet.tsx
+│   │   │       ├── skeleton.tsx
+│   │   │       ├── table.tsx
+│   │   │       └── tooltip.tsx
+│   │   ├── config/
+│   │   │   └── social-links.ts
+│   │   ├── lib/
+│   │   │   ├── analysisPresentation.ts
+│   │   │   └── utils.ts
 │   │   ├── pages/
 │   │   │   ├── Home.test.tsx
 │   │   │   └── Home.tsx
@@ -165,10 +196,16 @@ SeoScope/
 - `app.ts`: configura o Express, o parser JSON, as rotas e a resposta 404.
 - `server.ts`: inicia o servidor HTTP.
 - `frontend/src/assets/`: contém a logo, o favicon e os pesos utilizados da fonte Sofia Pro.
-- `frontend/src/components/AnalysisSummary.tsx`: apresenta o score, a classificação, a URL final e o resumo da análise.
-- `frontend/src/components/AnalysisResults.tsx`: organiza a lista de verificações técnicas retornadas pela API.
-- `frontend/src/components/CheckResultCard.tsx`: apresenta status, pontuação, mensagem e recomendação de cada verificação.
+- `frontend/src/components/AnalysisSummary.tsx`: organiza a visão geral e as pontuações por categoria.
+- `frontend/src/components/AnalysisResults.tsx`: organiza a navegação, as melhorias e as verificações agrupadas do relatório.
+- `frontend/src/components/EmptyAnalysis.tsx`: apresenta o estado inicial antes da primeira análise.
 - `frontend/src/components/`: também reúne a marca, o Header, o Hero, o formulário e o feedback de carregamento.
+- `frontend/src/components/layout/`: contém o rodapé e os links sociais da aplicação.
+- `frontend/src/components/seo/`: apresenta score, categorias, status, detalhes e recomendações da auditoria.
+- `frontend/src/components/ui/`: contém os componentes reutilizáveis baseados em Shadcn e Radix UI.
+- `frontend/src/config/social-links.ts`: centraliza os links sociais exibidos pela interface.
+- `frontend/src/lib/analysisPresentation.ts`: agrupa e formata os resultados para apresentação no relatório.
+- `frontend/src/lib/utils.ts`: reúne o utilitário de composição de classes CSS.
 - `frontend/src/pages/Home.tsx`: coordena os estados da requisição e a composição da Home.
 - `frontend/src/pages/Home.test.tsx`: testa validação, carregamento, sucesso, erro e repetição do fluxo de análise.
 - `frontend/src/services/seoApi.ts`: centraliza a chamada a `POST /api/analyze` e normaliza falhas da API.

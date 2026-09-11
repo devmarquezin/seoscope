@@ -165,8 +165,11 @@ describe('Home', () => {
     expect(screen.getByText('68')).toBeInTheDocument()
     expect(screen.getByText('Precisa melhorar')).toBeInTheDocument()
     expect(screen.getByText('8 resultados')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Title' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'HTTPS' })).toBeInTheDocument()
+    const titleTrigger = screen.getByRole('button', { name: /^Title Aprovado/ })
+
+    expect(titleTrigger.closest('h3')).toBeInTheDocument()
+    expect(titleTrigger.querySelector('div, h1, h2, h3, h4, h5, h6, p')).toBeNull()
+    expect(screen.getByRole('heading', { name: /^HTTPS Aprovado/ })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: /Meta Description/ }))
     expect(await screen.findByText('Aumente o conteúdo da descrição.')).toBeInTheDocument()
     expect(screen.getAllByRole('progressbar')).toHaveLength(3)
