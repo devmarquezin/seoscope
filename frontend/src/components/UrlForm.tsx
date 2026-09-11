@@ -1,4 +1,8 @@
 import { useState, type FormEvent } from 'react'
+import { ArrowRight, LoaderCircle } from 'lucide-react'
+import { Alert } from './ui/alert'
+import { Button } from './ui/button'
+import { Input } from './ui/input'
 
 interface UrlFormProps {
   isLoading: boolean
@@ -57,13 +61,13 @@ export function UrlForm({
   }
 
   return (
-    <form className="mt-10 max-w-4xl" onSubmit={handleSubmit} noValidate>
-      <label htmlFor="page-url" className="mb-3 block text-sm font-medium text-seo-text">
+    <form className="mt-8" onSubmit={handleSubmit} noValidate>
+      <label htmlFor="page-url" className="mb-2.5 block text-sm font-medium text-foreground">
         URL da página
       </label>
 
-      <div className="rounded-2xl border border-seo-border bg-seo-surface p-2 transition-colors focus-within:border-seo-muted sm:flex sm:items-center sm:gap-2">
-        <input
+      <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+        <Input
           id="page-url"
           name="url"
           type="url"
@@ -81,25 +85,22 @@ export function UrlForm({
           disabled={isLoading}
           aria-invalid={Boolean(errorMessage)}
           aria-describedby={errorMessage ? 'url-error' : 'url-help'}
-          className="h-13 w-full rounded-xl border border-transparent bg-seo-bg px-4 text-base text-seo-text outline-none transition-colors placeholder:text-seo-muted/70 focus:border-seo-muted disabled:cursor-wait disabled:opacity-70"
         />
 
-        <button
+        <Button
           type="submit"
           disabled={isLoading}
-          className="mt-2 h-13 w-full rounded-xl bg-seo-text px-6 font-semibold text-seo-bg outline-none transition-colors hover:bg-white focus-visible:ring-2 focus-visible:ring-seo-text focus-visible:ring-offset-2 focus-visible:ring-offset-seo-surface disabled:cursor-wait disabled:bg-seo-muted sm:mt-0 sm:w-auto sm:min-w-39"
+          className="h-12 w-full px-6 sm:w-auto"
         >
+          {isLoading ? <LoaderCircle className="animate-spin" /> : <ArrowRight />}
           {isLoading ? 'Analisando...' : 'Analisar site'}
-        </button>
+        </Button>
       </div>
 
       {errorMessage ? (
-        <p id="url-error" className="mt-3 flex items-start gap-2 text-sm text-red-400" role="alert">
-          <span aria-hidden="true">×</span>
-          <span>{errorMessage}</span>
-        </p>
+        <Alert id="url-error" variant="destructive" className="mt-3">{errorMessage}</Alert>
       ) : (
-        <p id="url-help" className="mt-3 text-sm text-seo-text/60">
+        <p id="url-help" className="mt-3 text-sm text-muted-foreground">
           Use uma URL completa com HTTP ou HTTPS.
         </p>
       )}

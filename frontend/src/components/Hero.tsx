@@ -1,14 +1,14 @@
 export function Hero() {
   return (
-    <div className="max-w-3xl">
-      <p className="mb-5 text-sm font-medium uppercase tracking-[0.18em] text-seo-text/55">
-        Análise técnica de uma página
+    <div className="max-w-2xl">
+      <p className="mb-3 text-sm font-medium uppercase tracking-[0.16em] text-primary/85">
+        Auditoria SEO técnica
       </p>
-      <h1 className="text-4xl font-semibold leading-tight tracking-[-0.045em] text-seo-text sm:text-5xl lg:text-6xl">
-        Analise o SEO técnico da sua página
+      <h1 className="text-3xl font-semibold leading-tight tracking-[-0.04em] text-foreground sm:text-4xl lg:text-[2.75rem]">
+        Encontre o que limita a visibilidade da sua página
       </h1>
-      <p className="mt-6 max-w-2xl text-base leading-7 text-seo-text/65 sm:text-lg sm:leading-8">
-        Identifique problemas técnicos, receba uma pontuação de SEO e descubra oportunidades de otimização.
+      <p className="mt-4 max-w-xl text-base leading-7 text-muted-foreground">
+        Analise os principais sinais técnicos, entenda cada resultado e priorize as próximas melhorias.
       </p>
     </div>
   )
