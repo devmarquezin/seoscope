@@ -34,7 +34,7 @@ O backend inicial está funcionando e já consegue:
 
 Todos os oito analyzers do MVP estão implementados, assim como o score geral, a classificação e o resumo de resultados. O frontend também está configurado com React, TypeScript, Vite e Tailwind CSS. A Home valida a URL, chama a API e apresenta os estados de carregamento, erro e sucesso. Após a análise, a interface exibe o score, a classificação, o resumo e todas as verificações técnicas com suas mensagens e recomendações.
 
-A suíte atual possui 65 testes unitários e de integração.
+A suíte atual possui 65 testes no backend e 6 testes de fluxo no frontend.
 
 ## Stack
 
@@ -115,9 +115,12 @@ SeoScope/
 │   │   │   ├── Logo.tsx
 │   │   │   └── UrlForm.tsx
 │   │   ├── pages/
+│   │   │   ├── Home.test.tsx
 │   │   │   └── Home.tsx
 │   │   ├── services/
 │   │   │   └── seoApi.ts
+│   │   ├── test/
+│   │   │   └── setup.ts
 │   │   ├── types/
 │   │   │   └── analysis.ts
 │   │   ├── App.tsx
@@ -126,6 +129,7 @@ SeoScope/
 │   ├── index.html
 │   ├── package.json
 │   ├── tsconfig.json
+│   ├── vitest.config.ts
 │   └── vite.config.ts
 ├── AGENTS.md
 └── README.md
@@ -166,12 +170,15 @@ SeoScope/
 - `frontend/src/components/CheckResultCard.tsx`: apresenta status, pontuação, mensagem e recomendação de cada verificação.
 - `frontend/src/components/`: também reúne a marca, o Header, o Hero, o formulário e o feedback de carregamento.
 - `frontend/src/pages/Home.tsx`: coordena os estados da requisição e a composição da Home.
+- `frontend/src/pages/Home.test.tsx`: testa validação, carregamento, sucesso, erro e repetição do fluxo de análise.
 - `frontend/src/services/seoApi.ts`: centraliza a chamada a `POST /api/analyze` e normaliza falhas da API.
+- `frontend/src/test/setup.ts`: prepara os matchers e a limpeza do ambiente de testes do React.
 - `frontend/src/types/analysis.ts`: espelha o contrato público retornado pelo backend.
 - `frontend/src/App.tsx`: monta a página principal da aplicação.
 - `frontend/src/index.css`: importa o Tailwind CSS, registra a paleta e define os estilos globais mínimos.
 - `frontend/src/main.tsx`: inicializa a aplicação React.
 - `frontend/vite.config.ts`: configura os plugins do React e do Tailwind no Vite.
+- `frontend/vitest.config.ts`: configura o Vitest com o ambiente DOM utilizado pelos testes dos componentes.
 
 Novos arquivos só serão criados quando tiverem uma responsabilidade real, evitando estrutura vazia ou código fictício.
 
@@ -208,6 +215,13 @@ npm run dev
 ```
 
 O Vite informará no terminal o endereço local do frontend, normalmente `http://localhost:5173`.
+
+Para executar os testes do frontend:
+
+```bash
+cd frontend
+npm test
+```
 
 ### Outros comandos
 
@@ -492,6 +506,7 @@ Essas medidas reduzem o risco do MVP, mas não substituem controles adicionais d
 - [x] Criar o frontend com React, Vite e Tailwind CSS
 - [x] Integrar o formulário do frontend ao endpoint
 - [x] Implementar a visualização completa do relatório
+- [x] Adicionar testes do fluxo de análise no frontend
 
 ## Fora do escopo inicial
 
