@@ -7,7 +7,7 @@ export function Logo() {
       className="inline-flex rounded-lg outline-none transition-opacity duration-200 hover:opacity-80 focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-background"
       aria-label="SeoScope — início"
     >
-      <span className="relative block h-9 w-36 overflow-hidden sm:w-40">
+      <span className="relative block h-12 w-44 overflow-hidden">
         <img
           src={logoUrl}
           alt="SeoScope"
