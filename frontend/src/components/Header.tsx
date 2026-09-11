@@ -23,7 +23,7 @@ export function Header() {
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Navegação principal">
           {navigation.map((item) => (
-            <Button key={item.href} asChild variant="ghost" size="sm">
+            <Button key={item.href} asChild variant="ghost" size="sm" className="hover:bg-transparent hover:text-primary">
               <a href={item.href}>{item.label}</a>
             </Button>
           ))}
@@ -49,7 +49,7 @@ export function Header() {
                     <a
                       href={item.href}
                       onClick={() => setIsOpen(false)}
-                      className="rounded-xl px-4 py-3 text-base font-medium text-foreground outline-none transition-colors hover:bg-secondary hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/50"
+                      className="rounded-xl px-4 py-3 text-base font-medium text-foreground outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/50"
                     >
                       {item.label}
                     </a>

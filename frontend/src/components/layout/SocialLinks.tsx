@@ -18,7 +18,7 @@ export function SocialLinks({ showLabels = false }: SocialLinksProps) {
       {links.map(({ label, href, icon: Icon }) => {
         const isConfigured = isConfiguredSocialLink(href)
         const control = isConfigured ? (
-          <Button asChild variant="ghost" size={showLabels ? 'sm' : 'icon'} className="hover:-translate-y-px">
+          <Button asChild variant="ghost" size={showLabels ? 'sm' : 'icon'} className="hover:bg-transparent hover:text-primary">
             <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
               <Icon aria-hidden="true" />
               {showLabels && <span>{label}</span>}
